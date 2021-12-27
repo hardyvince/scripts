@@ -132,8 +132,16 @@ if __name__ == "__main__":
     #my_event_handler = PatternMatchingEventHandler(patterns, ignore_patterns, ignore_directories, case_sensitive)
     
     regexes = [".+"]
-    ignore_regexes = [".*\\\\.git$"]
+
+    #ignore = ".*c:/Users/eharvin/OneDrive - Ericsson AB/000Vince/programming/git/scripts\\\\.git.*"
+    #c:/Users/eharvin/OneDrive - Ericsson AB/000Vince/programming/git/scripts
+    ignore_windows = "^" + path + "\\\\.git.*"
+    #ignore_regexes = [".*\\\\.git$"]
     #ignore_regexes = ["git"]
+    ignore_linux = "^" + path + "/\\.git.*"
+
+    ignore_regexes = [ignore_windows, ignore_linux]
+    print("ignore: " + ignore_linux)
     
     my_event_handler = RegexMatchingEventHandler (regexes=regexes,ignore_regexes=ignore_regexes, ignore_directories=ignore_directories, case_sensitive=case_sensitive)
     
