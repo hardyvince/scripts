@@ -83,7 +83,7 @@ def on_modified(event):
             #os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
     
     #shutil.copy(event.src_path, "G:/My Drive/sync")
-    print("ready: "+ datetime.now())
+    print("ready: ", datetime.now())
 
 def on_moved(event):
     print(f"ok ok ok, someone moved {event.src_path} to {event.dest_path}")
