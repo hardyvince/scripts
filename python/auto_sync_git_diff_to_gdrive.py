@@ -15,6 +15,7 @@ import sys
 import getopt
 from dulwich import porcelain
 from datetime import datetime
+import re
 
 def on_created(event):
     print(f"hey, {event.src_path} has been created!")
@@ -137,13 +138,21 @@ if __name__ == "__main__":
 
     #ignore = ".*c:/Users/eharvin/OneDrive - Ericsson AB/000Vince/programming/git/scripts\\\\.git.*"
     #c:/Users/eharvin/OneDrive - Ericsson AB/000Vince/programming/git/scripts
-    ignore_windows = "^" + path + "\\\\.git.*"
+    #ignore_windows = "^" + path + "\\\\.git.*"
     #ignore_regexes = [".*\\\\.git$"]
     #ignore_regexes = ["git"]
-    ignore_linux = "^" + path + "/\\.git.*"
+    #ignore_linux = "^" + path + "/\\.git.*"
 
-    ignore_regexes = [ignore_windows, ignore_linux]
-    print("ignore: " + ignore_linux)
+    #ignore_regexes = [ignore_windows, ignore_linux]
+    #print("ignore: " + ignore_linux)
+    
+    if os.name == 'nt':
+        ignore = "^" + re.escape(path) + "\\\\\\.git.*"
+    else:
+        ignore = "^" + path + "/\\.git.*"
+    
+    print("ignore: " + ignore)
+    ignore_regexes = [ignore]    
     
     my_event_handler = RegexMatchingEventHandler (regexes=regexes,ignore_regexes=ignore_regexes, ignore_directories=ignore_directories, case_sensitive=case_sensitive)
     
