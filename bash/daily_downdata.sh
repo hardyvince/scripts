@@ -1,17 +1,18 @@
 #!/bin/bash
 echo start
 
-while getopts d:o:p: flag
+while getopts d:o:p:k: flag
 do
     case "${flag}" in
             d) domain=${OPTARG};;
             o) other=${OPTARG};;
             p) project=${OPTARG};;
+	           k) key=${OPTARG};;
     esac
 done
 #echo "Username: $username";
 
-python sync.py -d $domain -o $other -m downdata -p $project
+python sync.py -d $domain -o $other -m downdata -p $project -k $key
 
 res1=($(ls -1t | grep database.zip))
 
