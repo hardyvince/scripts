@@ -24,68 +24,70 @@ def on_deleted(event):
     print(f"what the f**k! Someone deleted {event.src_path}!")
 
 def on_modified(event):
-    print(f"hey buddy, {event.src_path} has been modified")
-    #print(os.getcwd())
-    os.chdir(path)
-    print(os.getcwd())
-    #print("curr dir changed")
-    #os.system("git status")
-    basename=os.path.basename(path)
-    if os.name == 'nt':
-        print("G:/My Drive/sync/company_notebook/"+basename)
-        if os.path.isdir("G:/My Drive/sync/company_notebook/"+basename):
-            print("its a dir")
-            os.system("rd /s /q \"G:/My Drive/sync/company_notebook/"+basename+"\"")
-            print("deleted")
-        os.system("mkdir \"G:/My Drive/sync/company_notebook/"+basename+"\"")
-        os.system("git status > \"G:/My Drive/sync/company_notebook/"+basename+"/status\"")
-        os.system("git diff > \"G:/My Drive/sync/company_notebook/"+basename+"/diff\"")
+    try:
+        print(f"hey buddy, {event.src_path} has been modified")
+        #print(os.getcwd())
+        os.chdir(path)
+        print(os.getcwd())
+        #print("curr dir changed")
+        #os.system("git status")
+        basename=os.path.basename(path)
+        if os.name == 'nt':
+            print("G:/My Drive/sync/company_notebook/"+basename)
+            if os.path.isdir("G:/My Drive/sync/company_notebook/"+basename):
+                print("its a dir")
+                os.system("rd /s /q \"G:/My Drive/sync/company_notebook/"+basename+"\"")
+                print("deleted")
+            os.system("mkdir \"G:/My Drive/sync/company_notebook/"+basename+"\"")
+            os.system("git status > \"G:/My Drive/sync/company_notebook/"+basename+"/status\"")
+            os.system("git diff > \"G:/My Drive/sync/company_notebook/"+basename+"/diff\"")
+            
+            repo=porcelain.open_repo(path)
+            status=porcelain.status(repo)
+            print('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
+            print('unstaged: ', status.unstaged) 
+            #print 'untracked: ', status.untracked
+            #untracked not working on version 0.9.7
+            #print 'untracked: '+str(repo.untracked_files)
+            print('untracked: ', status.untracked)
+            for file in status.untracked:
+                #>xcopy /s python\ftp_upload_file.pyc "G:\My Drive\sync\company_notebook\scripts\python\"
+                if os.path.dirname(file) == '':
+                    print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
+                    os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
+                else:
+                    print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")            
+                    os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")           
+        else : 
+            os.system("rclone purge \"mobile_rclone:/sync/private_mobile/"+basename+"\"")
+            os.system("rclone mkdir \"mobile_rclone:/sync/private_mobile/"+basename+"\"")
+            os.system("rclone mkdir \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked\"")
+            os.system("mkdir \"../"+basename+"_tmp\"")
+            os.system("git status > \"../"+basename+"_tmp/status\"")
+            os.system("git diff   > \"../"+basename+"_tmp/diff\"")
+            os.system("rclone copy ../"+basename+"_tmp/diff   \"mobile_rclone:/sync/private_mobile/"+basename+"/\"")
+            os.system("rclone copy ../"+basename+"_tmp/status \"mobile_rclone:/sync/private_mobile/"+basename+"/\"")
+            os.system("rm -rf \"../"+basename+"_tmp\"")
+            
+            repo=porcelain.open_repo(path)
+            status=porcelain.status(repo)
+            print('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
+            print('unstaged: ', status.unstaged) 
+            #print 'untracked: ', status.untracked
+            #untracked not working on version 0.9.7
+            #print 'untracked: '+str(repo.untracked_files)
+            print('untracked: ', status.untracked)
+            for file in status.untracked:
+                #>xcopy /s python\ftp_upload_file.pyc "G:\My Drive\sync\company_notebook\scripts\python\"
+                print("rclone copy \""+file+"\" \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked/"+os.path.dirname(file)+"\"")
+                os.system("rclone copy \""+file+"\" \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked/"+os.path.dirname(file)+"\"")
+                #print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
+                #os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
         
-        repo=porcelain.open_repo(path)
-        status=porcelain.status(repo)
-        print('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
-        print('unstaged: ', status.unstaged) 
-        #print 'untracked: ', status.untracked
-        #untracked not working on version 0.9.7
-        #print 'untracked: '+str(repo.untracked_files)
-        print('untracked: ', status.untracked)
-        for file in status.untracked:
-            #>xcopy /s python\ftp_upload_file.pyc "G:\My Drive\sync\company_notebook\scripts\python\"
-            if os.path.dirname(file) == '':
-                print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
-                os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
-            else:
-                print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")            
-                os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")           
-    else : 
-        os.system("rclone purge \"mobile_rclone:/sync/private_mobile/"+basename+"\"")
-        os.system("rclone mkdir \"mobile_rclone:/sync/private_mobile/"+basename+"\"")
-        os.system("rclone mkdir \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked\"")
-        os.system("mkdir \"../"+basename+"_tmp\"")
-        os.system("git status > \"../"+basename+"_tmp/status\"")
-        os.system("git diff   > \"../"+basename+"_tmp/diff\"")
-        os.system("rclone copy ../"+basename+"_tmp/diff   \"mobile_rclone:/sync/private_mobile/"+basename+"/\"")
-        os.system("rclone copy ../"+basename+"_tmp/status \"mobile_rclone:/sync/private_mobile/"+basename+"/\"")
-        os.system("rm -rf \"../"+basename+"_tmp\"")
-        
-        repo=porcelain.open_repo(path)
-        status=porcelain.status(repo)
-        print('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
-        print('unstaged: ', status.unstaged) 
-        #print 'untracked: ', status.untracked
-        #untracked not working on version 0.9.7
-        #print 'untracked: '+str(repo.untracked_files)
-        print('untracked: ', status.untracked)
-        for file in status.untracked:
-            #>xcopy /s python\ftp_upload_file.pyc "G:\My Drive\sync\company_notebook\scripts\python\"
-            print("rclone copy \""+file+"\" \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked/"+os.path.dirname(file)+"\"")
-            os.system("rclone copy \""+file+"\" \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked/"+os.path.dirname(file)+"\"")
-            #print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
-            #os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
-    
-    #shutil.copy(event.src_path, "G:/My Drive/sync")
-    print("ready: ", datetime.now())
-
+        #shutil.copy(event.src_path, "G:/My Drive/sync")
+        print("ready: ", datetime.now())
+    except BaseException:
+        os._exit(1)    
 def on_moved(event):
     print(f"ok ok ok, someone moved {event.src_path} to {event.dest_path}")
 
@@ -173,5 +175,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         my_observer.stop()
         my_observer.join()
-
-
