@@ -2,6 +2,10 @@
 #python myvenv\Scripts\pywin32_postinstall.py -install
 #or add to path the C:\Python\Python310\lib\site-packages\pywin32_system32 where the dll-s live
 #register the dll-s and copy to C:\Windows\System32???
+#open services as administrator
+#set the service to automate and at recovery tab set restart in case of failure
+#usage> python OneFileService_syncsc.py install
+#python OneFileService_syncsc.py start/status/stop
 import socket
 
 import win32serviceutil
