@@ -17,46 +17,69 @@ from dulwich import porcelain
 from datetime import datetime
 import re
 
+log_main=False
+stop = False
+
+def log(message1,*message):
+    global log_main
+    global path
+    #print("log_main", log_main)
+    if log_main:
+        print(message1,message)
+    else:
+        if not os.path.isdir(os.path.dirname(os.path.dirname(path))+"\\log"):
+            os.system("mkdir " + os.path.dirname(os.path.dirname(path))+"\\log")        
+        log_file = os.path.dirname(os.path.dirname(path)) + "\\log\\auto_sync_"+os.path.basename(path)+"_console.log"
+        with open(log_file,'a+') as file:
+            print(message1,message,file=file)
+        
+
 def on_created(event):
-    print(f"hey, {event.src_path} has been created!")
+    log(f"hey, {event.src_path} has been created!")
 
 def on_deleted(event):
-    print(f"what the f**k! Someone deleted {event.src_path}!")
+    log(f"what the f**k! Someone deleted {event.src_path}!")
 
 def on_modified(event):
     try:
-        print(f"hey buddy, {event.src_path} has been modified")
-        #print(os.getcwd())
+        log(f"hey buddy, {event.src_path} has been modified")
+        #log(aaa)
+        #log(os.getcwd())
         os.chdir(path)
-        print(os.getcwd())
-        #print("curr dir changed")
+        log(os.getcwd())
+        #log("curr dir changed")
         #os.system("git status")
         basename=os.path.basename(path)
         if os.name == 'nt':
-            print("G:/My Drive/sync/company_notebook/"+basename)
+            log("G:/My Drive/sync/company_notebook/"+basename)
             if os.path.isdir("G:/My Drive/sync/company_notebook/"+basename):
-                print("its a dir")
+                log("its a dir")
                 os.system("rd /s /q \"G:/My Drive/sync/company_notebook/"+basename+"\"")
-                print("deleted")
+                log("deleted")
             os.system("mkdir \"G:/My Drive/sync/company_notebook/"+basename+"\"")
+            log("gdrive dir created")
             os.system("git status > \"G:/My Drive/sync/company_notebook/"+basename+"/status\"")
+            log("status loged")
             os.system("git diff > \"G:/My Drive/sync/company_notebook/"+basename+"/diff\"")
+            log("diff loged")
             
             repo=porcelain.open_repo(path)
+            log("repo has been set")
             status=porcelain.status(repo)
-            print('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
-            print('unstaged: ', status.unstaged) 
-            #print 'untracked: ', status.untracked
+            log("status got")
+            log('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
+            log('unstaged: ', status.unstaged) 
+            #log 'untracked: ', status.untracked
             #untracked not working on version 0.9.7
-            #print 'untracked: '+str(repo.untracked_files)
-            print('untracked: ', status.untracked)
+            #log 'untracked: '+str(repo.untracked_files)
+            log('untracked: ', status.untracked)
             for file in status.untracked:
                 #>xcopy /s python\ftp_upload_file.pyc "G:\My Drive\sync\company_notebook\scripts\python\"
                 if os.path.dirname(file) == '':
-                    print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
+                    log(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
                     os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
                 else:
-                    print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")            
+                    log(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")            
                     os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")           
         else : 
             os.system("rclone purge \"mobile_rclone:/sync/private_mobile/"+basename+"\"")
@@ -71,43 +94,53 @@ def on_modified(event):
             
             repo=porcelain.open_repo(path)
             status=porcelain.status(repo)
-            print('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
-            print('unstaged: ', status.unstaged) 
-            #print 'untracked: ', status.untracked
+            log('staged - added:', status.staged['add'], 'modified:', status.staged['modify'], 'deleted: ', status.staged['delete'])     
+            log('unstaged: ', status.unstaged) 
+            #log 'untracked: ', status.untracked
             #untracked not working on version 0.9.7
-            #print 'untracked: '+str(repo.untracked_files)
-            print('untracked: ', status.untracked)
+            #log 'untracked: '+str(repo.untracked_files)
+            log('untracked: ', status.untracked)
             for file in status.untracked:
                 #>xcopy /s python\ftp_upload_file.pyc "G:\My Drive\sync\company_notebook\scripts\python\"
-                print("rclone copy \""+file+"\" \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked/"+os.path.dirname(file)+"\"")
+                log("rclone copy \""+file+"\" \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked/"+os.path.dirname(file)+"\"")
                 os.system("rclone copy \""+file+"\" \"mobile_rclone:/sync/private_mobile/"+basename+"/untracked/"+os.path.dirname(file)+"\"")
-                #print(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
+                #log(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
                 #os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\"+os.path.dirname(file)+"\\\"")
         
         #shutil.copy(event.src_path, "G:/My Drive/sync")
-        print("ready: ", datetime.now())
+        log("ready: ", str(datetime.now()))
     except BaseException:
         os._exit(1)    
 def on_moved(event):
-    print(f"ok ok ok, someone moved {event.src_path} to {event.dest_path}")
+    log(f"ok ok ok, someone moved {event.src_path} to {event.dest_path}")
 
+def observer_stop():
+    global my_observer
+    global stop
+    my_observer.stop()
+    my_observer.join()
+    stop = True
+    log("stopping")
 
-if __name__ == "__main__":
+def main(argv):
 
     ################################################### get options
+    global path
+    global my_observer
+    global stop
+    print(str(argv))
+    print(len(argv))
+    
 
-    print(str(sys.argv))
-    print(len(sys.argv))
-
-    if len(sys.argv) ==1:
+    if len(argv) ==1:
         print('add parameters: ')
         params=input().split(' ')
     else:
-        params=sys.argv[1:]
+        params=argv[1:]
 
 
     try: 
-        opts, args = getopt.getopt( params ,"p:",["path="])
+        opts, args = getopt.getopt( params ,"hp:",["help","path="])
         print('try ok')
     except getopt.GetoptError: 
         print('file_sync_to_gdrive_windows -p "path/to/git/project')
@@ -126,7 +159,8 @@ if __name__ == "__main__":
             sys.exit() 
         elif opt in ("-p", "--path"): 
             path = arg
-            print('path:' + path)
+            print("incase of module log path:" + path + "\\auto_sync_console.log")
+            log('path:' + path)
         else:
             print('not recognize')
 
@@ -146,14 +180,14 @@ if __name__ == "__main__":
     #ignore_linux = "^" + path + "/\\.git.*"
 
     #ignore_regexes = [ignore_windows, ignore_linux]
-    #print("ignore: " + ignore_linux)
+    #log("ignore: " + ignore_linux)
     
     if os.name == 'nt':
         ignore = "^" + re.escape(path) + "\\\\\\.git.*"
     else:
         ignore = "^" + path + "/\\.git.*"
     
-    print("ignore: " + ignore)
+    log("ignore: " + ignore)
     ignore_regexes = [ignore]    
     
     my_event_handler = RegexMatchingEventHandler (regexes=regexes,ignore_regexes=ignore_regexes, ignore_directories=ignore_directories, case_sensitive=case_sensitive)
@@ -172,6 +206,14 @@ if __name__ == "__main__":
     try:
         while True:
             time.sleep(1)
+            if stop:
+                break
     except KeyboardInterrupt:
         my_observer.stop()
         my_observer.join()
+        
+if __name__ == "__main__":
+    log_main = True
+    main(sys.argv)
+    
+    
