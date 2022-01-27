@@ -6,6 +6,9 @@
 #set the service to automate and at recovery tab set restart in case of failure
 #usage> python OneFileService_syncde.py install
 #python OneFileService_syncde.py start/status/stop
+#as it using mounted google drive it needs authentication and it goes throu machine user:
+#at services set the log on> this account machine user 
+
 import socket
 
 import win32serviceutil

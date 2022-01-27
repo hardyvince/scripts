@@ -77,10 +77,10 @@ def on_modified(event):
                 #>xcopy /s python\ftp_upload_file.pyc "G:\My Drive\sync\company_notebook\scripts\python\"
                 if os.path.dirname(file) == '':
                     log(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
-                    os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
+                    os.system("cmd.exe /c xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\\"")
                 else:
                     log(    "xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")            
-                    os.system("xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")           
+                    os.system("cmd.exe /c xcopy /s \""+file+"\" \"G:\\My Drive\\sync\\company_notebook\\"+basename+"\\untracked\\"+os.path.dirname(file)+"\\\"")           
         else : 
             os.system("rclone purge \"mobile_rclone:/sync/private_mobile/"+basename+"\"")
             os.system("rclone mkdir \"mobile_rclone:/sync/private_mobile/"+basename+"\"")
